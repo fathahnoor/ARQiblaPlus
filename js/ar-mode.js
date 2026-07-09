@@ -49,19 +49,30 @@ const ARMode = {
     const loadingEl = document.getElementById('ar-loading');
     if (loadingEl) loadingEl.style.display = 'flex';
 
-    // Wait for scene to be ready
-    sceneEl.addEventListener(
-      'loaded',
-      () => {
-        this.sceneReady = true;
-        if (loadingEl) loadingEl.style.display = 'none';
-        EventBus.emit('ar:ready');
+    // Dynamically add arjs attribute to start AR.js (prevents camera from starting on page load)
+    sceneEl.setAttribute('arjs', 'sourceType: webcam; videoTexture: true; debugUIEnabled: false');
 
-        // Setup scene after it's loaded
-        this._setupScene();
-      },
-      { once: true }
-    );
+    // Re-initialize gps-new-camera component since AR.js system just became available
+    const cameraEl = sceneEl.querySelector('[gps-new-camera]');
+    if (cameraEl) {
+      cameraEl.removeAttribute('gps-new-camera');
+      cameraEl.setAttribute('gps-new-camera', 'gpsMinDistance: 2; gpsMinAccuracy: 50');
+    }
+
+    // Handler for when scene is ready
+    const onSceneReady = () => {
+      this.sceneReady = true;
+      if (loadingEl) loadingEl.style.display = 'none';
+      EventBus.emit('ar:ready');
+      this._setupScene();
+    };
+
+    // A-Frame may have already loaded before we added the listener
+    if (sceneEl.hasLoaded) {
+      onSceneReady();
+    } else {
+      sceneEl.addEventListener('loaded', onSceneReady, { once: true });
+    }
 
     // Timeout fallback
     setTimeout(() => {
@@ -387,9 +398,17 @@ const ARMode = {
     }
     this.qiblaMarker = null;
 
-    // Hide scene
+    // Hide scene & stop AR.js camera
     if (this.scene) {
       this.scene.setAttribute('visible', 'false');
+      this.scene.removeAttribute('arjs');
+
+      // Stop camera stream
+      const video = document.querySelector('#ar-scene video, video');
+      if (video && video.srcObject) {
+        video.srcObject.getTracks().forEach((track) => track.stop());
+        video.remove();
+      }
     }
 
     // Clear HUD

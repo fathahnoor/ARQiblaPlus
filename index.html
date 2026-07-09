@@ -88,12 +88,11 @@
         <!-- AR Qibla HUD -->
         <div id="ar-qibla-hud"></div>
 
-        <!-- A-Frame AR Scene -->
+        <!-- A-Frame AR Scene (arjs attribute added dynamically when entering AR mode) -->
         <a-scene
           id="ar-scene"
           vr-mode-ui="enabled: false"
           embedded
-          arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false"
           renderer="antialias: true; alpha: true; logarithmicDepthBuffer: true"
           visible="false"
         >
