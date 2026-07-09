@@ -1,5 +1,5 @@
 /**
- * ARQiblaPlus — Utility Functions
+ * ARQiblaPlus - Utility Functions
  * Haversine, destination point, bearing, debounce, formatting helpers
  */
 
@@ -50,7 +50,7 @@ function destinationPoint(lat, lon, bearing, distance) {
 }
 
 /**
- * Normalize bearing/angle to 0–360 range
+ * Normalize bearing/angle to 0-360 range
  */
 function normalizeAngle(angle) {
   return ((angle % 360) + 360) % 360;

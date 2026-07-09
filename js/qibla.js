@@ -1,5 +1,5 @@
 /**
- * ARQiblaPlus — Qibla Calculation
+ * ARQiblaPlus - Qibla Calculation
  * Calculates Qibla bearing from user's location to the Kaaba
  */
 

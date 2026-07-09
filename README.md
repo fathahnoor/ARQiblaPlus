@@ -1,6 +1,6 @@
 # ARQiblaPlus
 
-> **Arah Kiblat & Masjid Terdekat — Augmented Reality + GPS**  
+> **Arah Kiblat & Masjid Terdekat - Augmented Reality + GPS**  
 > Web app mobile browser (PWA-ready) tanpa instalasi.
 
 ---

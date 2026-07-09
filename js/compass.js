@@ -1,5 +1,5 @@
 /**
- * ARQiblaPlus — Compass Service
+ * ARQiblaPlus - Compass Service
  * Handles DeviceOrientation API for compass heading across Android and iOS
  */
 
@@ -33,7 +33,7 @@ const CompassService = {
         return false;
       }
     } else {
-      // Android or older iOS — start directly
+      // Android or older iOS - start directly
       this._startListening();
       return true;
     }

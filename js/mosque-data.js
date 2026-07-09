@@ -1,5 +1,5 @@
 /**
- * ARQiblaPlus — Mosque Data Service
+ * ARQiblaPlus - Mosque Data Service
  * Queries Overpass API for nearby mosques and manages caching
  */
 
@@ -46,7 +46,7 @@ out center;
 
         if (!response.ok) {
           if (response.status === 429) {
-            // Rate limited — exponential backoff
+            // Rate limited - exponential backoff
             const delay = Math.min(1000 * Math.pow(2, this.retryCount), 16000);
             this.retryCount++;
             await new Promise((r) => setTimeout(r, delay));
@@ -146,7 +146,7 @@ out center;
       };
       localStorage.setItem(key, JSON.stringify(cache));
     } catch (e) {
-      // localStorage full or unavailable — ignore
+      // localStorage full or unavailable - ignore
     }
   },
 

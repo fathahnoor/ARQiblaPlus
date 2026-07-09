@@ -1,5 +1,5 @@
 /**
- * ARQiblaPlus — Map Mode
+ * ARQiblaPlus - Map Mode
  * Leaflet map with user marker, mosque markers, Qibla line, and mosque list
  */
 
@@ -336,6 +336,6 @@ const MapMode = {
    * Pause map mode (when switching to AR)
    */
   pause() {
-    // Nothing needed — Leaflet handles itself
+    // Nothing needed - Leaflet handles itself
   },
 };

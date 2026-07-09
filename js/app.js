@@ -1,5 +1,5 @@
 /**
- * ARQiblaPlus — Main App Controller
+ * ARQiblaPlus - Main App Controller
  * Mode switching, state management, app initialization
  */
 

@@ -1,5 +1,5 @@
 /**
- * ARQiblaPlus — AR Mode
+ * ARQiblaPlus - AR Mode
  * AR.js scene initialization, AR markers for Qibla and mosques, toggle, HUD
  */
 

@@ -1,5 +1,5 @@
 /**
- * ARQiblaPlus — Geolocation Service
+ * ARQiblaPlus - Geolocation Service
  * Wraps navigator.geolocation.watchPosition with error handling and fallbacks
  */
 
