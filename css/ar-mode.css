@@ -96,32 +96,50 @@
   z-index: 400;
   text-align: center;
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
-.ar-hud-arrow {
-  font-size: 32px;
+.ar-compass-dial {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.ar-compass-qibla {
+  font-size: 20px;
   color: var(--qibla-gold);
   transition: transform 0.3s ease;
   will-change: transform;
-  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  line-height: 1;
 }
 
-.ar-hud-text {
+.ar-compass-label {
   display: inline-block;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: var(--text-light);
-  padding: 6px 16px;
+  padding: 4px 12px;
   border-radius: var(--radius-xl);
   font-size: var(--font-size-sm);
   font-weight: 500;
-  margin-top: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.ar-hud-text.qibla-aligned {
+.ar-compass-label.qibla-aligned {
   color: var(--success);
   font-weight: 700;
 }

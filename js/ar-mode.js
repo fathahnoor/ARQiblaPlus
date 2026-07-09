@@ -278,8 +278,10 @@ const ARMode = {
     if (!container) return;
 
     container.innerHTML = `
-      <div class="ar-hud-arrow" id="ar-qibla-arrow">⬆</div>
-      <div class="ar-hud-text" id="ar-qibla-text">Kompas belum siap</div>
+      <div class="ar-compass-dial" id="ar-compass-dial">
+        <div class="ar-compass-qibla" id="ar-compass-qibla">⬆</div>
+      </div>
+      <div class="ar-compass-label" id="ar-compass-label">Kompas belum siap</div>
     `;
 
     this._unsubCompass = EventBus.on('compass:heading', (data) => {
@@ -289,27 +291,33 @@ const ARMode = {
 
   /**
    * Update AR Qibla HUD overlay
+   * Arrow always points toward Qibla direction
    */
   _updateHUD(deviceHeading) {
     const qiblaBearing = AppState.qiblaBearing;
     if (!qiblaBearing) return;
 
-    const relative = getRelativeBearing(qiblaBearing, deviceHeading);
-    if (relative === null) return;
+    const dial = document.getElementById('ar-compass-dial');
+    const arrow = document.getElementById('ar-compass-qibla');
+    const label = document.getElementById('ar-compass-label');
 
-    const arrow = document.getElementById('ar-qibla-arrow');
-    const text = document.getElementById('ar-qibla-text');
+    const relAngle = ((qiblaBearing - deviceHeading) % 360 + 360) % 360;
 
+    // Arrow points toward qibla relative to current heading
     if (arrow) {
-      arrow.style.transform = `rotate(${relative}deg)`;
+      arrow.style.transform = `rotate(${relAngle}deg)`;
     }
 
-    if (text) {
-      text.textContent = getQiblaInstruction(relative);
-      if (relative < 15 || relative > 345) {
-        text.className = 'ar-hud-text qibla-aligned';
+    const pos = GeolocationService.getLastPosition();
+    if (pos && label) {
+      const dist = haversine(pos.latitude, pos.longitude, KAABA.latitude, KAABA.longitude);
+      const distKm = Math.round(dist / 1000);
+      if (relAngle < 15 || relAngle > 345) {
+        label.textContent = 'Kiblat ✓';
+        label.className = 'ar-compass-label qibla-aligned';
       } else {
-        text.className = 'ar-hud-text';
+        label.textContent = `${qiblaBearing.toFixed(0)}° • ${distKm} km`;
+        label.className = 'ar-compass-label';
       }
     }
   },

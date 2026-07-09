@@ -117,27 +117,49 @@ const MapMode = {
 
   /**
    * Handle compass heading update
+   * Rotates the compass dial to match device heading.
+   * The Qibla marker (Kaaba icon) always points toward the Qibla direction.
    */
   _onCompassUpdate(data) {
     if (!AppState.qiblaBearing) return;
 
-    const relative = ((AppState.qiblaBearing - data.heading) % 360 + 360) % 360;
-    const arrow = document.getElementById('compass-arrow');
-    const text = document.getElementById('compass-text');
+    const dial = document.getElementById('compass-dial');
+    const qiblaMarker = document.getElementById('compass-qibla');
+    const label = document.getElementById('compass-label');
 
-    if (arrow) {
-      arrow.style.transform = `rotate(${relative}deg)`;
+    // Rotate dial so North stays at correct world position
+    // When deviceHeading=0 (facing North), dial doesn't rotate
+    // When deviceHeading=90 (facing East), dial rotates -90 so N appears on the left
+    if (dial) {
+      dial.style.transform = `rotate(${-data.heading}deg)`;
     }
-    if (text) {
-      if (relative < 15 || relative > 345) {
-        text.textContent = '✓ Lurus';
-        text.className = 'qibla-aligned';
-      } else if (relative < 180) {
-        text.textContent = `→ ${Math.round(relative)}°`;
-        text.className = '';
-      } else {
-        text.textContent = `← ${Math.round(360 - relative)}°`;
-        text.className = '';
+
+    // Position the Qibla marker on the dial at the qibla bearing angle
+    if (qiblaMarker) {
+      const angleRad = (AppState.qiblaBearing * Math.PI) / 180;
+      const radius = 30; // distance from center to marker (inside the 80px dial)
+      const x = Math.sin(angleRad) * radius;
+      const y = -Math.cos(angleRad) * radius;
+      qiblaMarker.style.top = `${40 + y - 7}px`;
+      qiblaMarker.style.left = `${40 + x - 7}px`;
+      qiblaMarker.style.transform = 'none';
+      qiblaMarker.style.display = 'block';
+    }
+
+    // Show distance info
+    if (label) {
+      const relAngle = ((AppState.qiblaBearing - data.heading) % 360 + 360) % 360;
+      const pos = GeolocationService.getLastPosition();
+      if (pos) {
+        const dist = haversine(pos.latitude, pos.longitude, KAABA.latitude, KAABA.longitude);
+        const distKm = Math.round(dist / 1000);
+        if (relAngle < 15 || relAngle > 345) {
+          label.textContent = 'Kiblat ✓';
+          label.className = 'compass-label qibla-aligned';
+        } else {
+          label.textContent = `${AppState.qiblaBearing.toFixed(0)}° • ${distKm} km`;
+          label.className = 'compass-label';
+        }
       }
     }
   },
