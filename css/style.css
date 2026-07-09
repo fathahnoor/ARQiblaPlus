@@ -1,0 +1,691 @@
+/**
+ * ARQiblaPlus — Global Styles
+ * Mobile-first theming, layout, and shared components
+ */
+
+:root {
+  --primary: #00897b;
+  --primary-dark: #00695c;
+  --qibla-gold: #ffd700;
+  --mosque-green: #2e7d32;
+  --user-blue: #2196f3;
+  --bg-dark: #1a1a2e;
+  --bg-card: #16213e;
+  --bg-surface: #0f3460;
+  --text-light: #e0e0e0;
+  --text-muted: #9e9e9e;
+  --text-white: #ffffff;
+  --error: #ef5350;
+  --warning: #ff9800;
+  --success: #4caf50;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+
+  --touch-target: 44px;
+}
+
+/* Reset & Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  color: var(--text-light);
+  background: var(--bg-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* App Shell */
+#app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Top Bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 100;
+  min-height: var(--touch-target);
+  flex-shrink: 0;
+}
+
+.top-bar-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--qibla-gold);
+  letter-spacing: -0.5px;
+}
+
+.top-bar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--text-white);
+}
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-light);
+}
+
+.btn-compass {
+  background: var(--bg-surface);
+  color: var(--text-light);
+}
+.btn-compass.active {
+  background: var(--primary);
+  color: var(--text-white);
+}
+.btn-compass.error {
+  background: rgba(239, 83, 80, 0.2);
+  color: var(--error);
+}
+
+.btn-icon {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  min-height: 36px;
+  font-size: var(--font-size-xs);
+}
+
+.btn-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  font-size: var(--font-size-xl);
+  padding: 6px 10px;
+}
+
+/* Toolbars */
+#map-toolbar,
+#ar-toolbar {
+  display: none;
+  padding: 8px 12px;
+  gap: 8px;
+  align-items: center;
+  background: var(--bg-card);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  z-index: 100;
+}
+#map-toolbar.active,
+#ar-toolbar.active {
+  display: flex;
+}
+
+#ar-toolbar {
+  background: rgba(22, 33, 62, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Main Content Area */
+#main-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Map & AR Containers */
+#map-container,
+#ar-container {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+#map-container.active,
+#ar-container.active {
+  display: block;
+}
+
+#map-container {
+  z-index: 1;
+}
+
+#ar-container {
+  z-index: 2;
+  background: #000;
+}
+
+/* Map element */
+#map-el {
+  width: 100%;
+  height: 100%;
+}
+
+/* A-Frame scene */
+#ar-scene {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute;
+  inset: 0;
+}
+
+/* Compass Widget */
+.compass-widget {
+  position: absolute;
+  bottom: 120px;
+  right: 12px;
+  z-index: 1000;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.compass-arrow {
+  font-size: 24px;
+  color: var(--error);
+  transition: transform 0.3s ease;
+  will-change: transform;
+  line-height: 1;
+}
+
+.compass-text {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.qibla-aligned {
+  color: var(--success) !important;
+}
+
+/* Map Controls Overlay */
+.map-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-controls .btn {
+  box-shadow: var(--shadow-sm);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-light);
+}
+
+/* Radius Selector */
+.radius-select-wrap {
+  flex: 1;
+}
+
+.radius-select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-light);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  min-height: var(--touch-target);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e0e0e0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+/* Mosque List Panel */
+.mosque-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 40%;
+  background: var(--bg-card);
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mosque-panel-header {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mosque-panel-title {
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#mosque-list {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  padding: 4px 0;
+}
+
+.mosque-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: var(--touch-target);
+}
+
+.mosque-item:hover,
+.mosque-item:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mosque-item-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.mosque-item-name {
+  flex: 1;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mosque-item-distance {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  flex-shrink: 0;
+}
+
+.mosque-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Popup */
+.mosque-popup {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  color: #333;
+}
+
+/* Status Bar */
+#status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 12px;
+  background: rgba(0, 0, 0, 0.8);
+  font-size: var(--font-size-xs);
+  flex-shrink: 0;
+  z-index: 100;
+  gap: 8px;
+}
+#status-bar.ar-status {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.status-badge {
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.status-ok {
+  color: var(--success);
+}
+.status-warn {
+  color: var(--warning);
+}
+.status-error {
+  color: var(--error);
+}
+
+/* Leaflet Overrides */
+.leaflet-container {
+  background: var(--bg-dark) !important;
+  font-family: var(--font-family) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius-md) !important;
+  font-family: var(--font-family) !important;
+}
+
+.user-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--user-blue);
+  border: 3px solid #fff;
+  box-shadow: 0 0 12px rgba(33, 150, 243, 0.6);
+  animation: pulse 2s infinite;
+}
+
+.kaaba-dot {
+  font-size: 22px;
+  text-align: center;
+  line-height: 30px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.mosque-dot {
+  font-size: 20px;
+  text-align: center;
+  line-height: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* AR Loading */
+#ar-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.ar-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.ar-loading-text {
+  color: var(--text-light);
+  font-size: var(--font-size-md);
+}
+
+/* AR Qibla HUD */
+#ar-qibla-hud {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  text-align: center;
+  pointer-events: none;
+}
+
+.ar-hud-arrow {
+  font-size: 28px;
+  color: var(--qibla-gold);
+  transition: transform 0.3s ease;
+  will-change: transform;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.ar-hud-text {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-light);
+  padding: 4px 12px;
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-sm);
+  margin-top: 4px;
+}
+
+/* iOS Notice */
+#ios-notice {
+  display: none;
+  background: rgba(255, 152, 0, 0.15);
+  border: 1px solid rgba(255, 152, 0, 0.5);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  margin: 8px 12px;
+  color: var(--warning);
+}
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-light);
+  padding: 10px 20px;
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 90%;
+  text-align: center;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Modals */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.8);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.modal h3 {
+  margin-bottom: 8px;
+  font-size: var(--font-size-xl);
+}
+
+.modal p {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.modal-close {
+  padding: 10px 24px;
+  background: var(--primary);
+  color: var(--text-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: var(--touch-target);
+}
+
+/* Unsupported overlay */
+#unsupported-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  background: var(--bg-dark);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+#unsupported-overlay h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--error);
+}
+
+#unsupported-message {
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(33, 150, 243, 0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+/* Media Queries */
+@media (min-width: 600px) {
+  .mosque-panel {
+    max-width: 400px;
+    right: auto;
+    bottom: 8px;
+    left: 8px;
+    border-radius: var(--radius-lg);
+  }
+}
