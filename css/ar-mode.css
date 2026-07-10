@@ -8,7 +8,7 @@
   background: #000;
 }
 
-/* AR loading overlay */
+/* Mode switching handled by style.css (opacity + pointer-events) */
 #ar-loading {
   position: absolute;
   inset: 0;
@@ -163,23 +163,7 @@
   z-index: 500;
 }
 
-/* Fade transition between modes */
-#map-container,
-#ar-container {
-  transition: opacity 0.3s ease;
-}
-
-#map-container:not(.active) {
-  opacity: 0;
-  pointer-events: none;
-}
-
-#ar-container:not(.active) {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* A-Frame video canvas fix for mobile */
+/* A-Frame overrides */
 .a-canvas.a-grab-cursor {
   cursor: default !important;
 }

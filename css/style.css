@@ -166,32 +166,16 @@ body {
   padding: 6px 10px;
 }
 
-/* Toolbars */
+/* Toolbars (base) — map-mode/ar-mode CSS handle mode-specific overrides */
 #map-toolbar,
 #ar-toolbar {
   display: none;
-  padding: 8px 12px;
-  gap: 8px;
-  align-items: center;
-  background: var(--bg-card);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
   z-index: 100;
 }
 #map-toolbar.active,
 #ar-toolbar.active {
   display: flex;
-}
-
-#ar-toolbar {
-  background: rgba(22, 33, 62, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Main Content Area */
@@ -206,11 +190,14 @@ body {
 #ar-container {
   position: absolute;
   inset: 0;
-  display: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
 }
 #map-container.active,
 #ar-container.active {
-  display: block;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 #map-container {
@@ -557,62 +544,7 @@ body {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
 
-/* AR Loading */
-#ar-loading {
-  position: absolute;
-  inset: 0;
-  z-index: 9999;
-  background: rgba(0, 0, 0, 0.85);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.ar-loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-.ar-loading-text {
-  color: var(--text-light);
-  font-size: var(--font-size-md);
-}
-
-/* AR Qibla HUD */
-#ar-qibla-hud {
-  position: absolute;
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  text-align: center;
-  pointer-events: none;
-}
-
-.ar-hud-arrow {
-  font-size: 28px;
-  color: var(--qibla-gold);
-  transition: transform 0.3s ease;
-  will-change: transform;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-}
-
-.ar-hud-text {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: var(--text-light);
-  padding: 4px 12px;
-  border-radius: var(--radius-xl);
-  font-size: var(--font-size-sm);
-  margin-top: 4px;
-}
+/* AR elements – see ar-mode.css for full styles */
 
 /* iOS Notice */
 #ios-notice {
@@ -759,10 +691,10 @@ body {
   border-radius: 2px;
 }
 
-/* Media Queries */
+/* Larger screens: keep panel full-width portrait layout */
 @media (min-width: 600px) {
   .mosque-panel {
-    max-width: 400px;
+    max-width: 420px;
     right: auto;
     bottom: 8px;
     left: 8px;
