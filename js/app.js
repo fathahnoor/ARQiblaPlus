@@ -79,36 +79,84 @@ const App = {
   },
 
   /**
-   * Wait for first location fix
+   * Wait for first location fix.
+   * Falls back to a default location after 20 seconds if GPS is unavailable.
    */
   _waitForLocation() {
-    const check = () => {
-      const pos = GeolocationService.getLastPosition();
-      if (pos) {
-        // Initialize map with user's location
-        MapMode.init(pos.latitude, pos.longitude);
-        AppState.userLocation = pos;
-        AppState.qiblaBearing = calculateQibla(pos.latitude, pos.longitude);
+    let locationTimeout = null;
+    let unsubscribe = null;
+    let errorUnsubscribe = null;
+
+    const DEFAULT_LAT = -6.2088;
+    const DEFAULT_LON = 106.8456;
+
+    const cleanup = () => {
+      clearTimeout(locationTimeout);
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      if (errorUnsubscribe) { errorUnsubscribe(); errorUnsubscribe = null; }
+    };
+
+    const initMap = (lat, lon, isFallback) => {
+      if (AppState.userLocation) return; // already initialized
+
+      MapMode.init(lat, lon);
+      AppState.userLocation = { latitude: lat, longitude: lon, accuracy: isFallback ? 99999 : null };
+      AppState.qiblaBearing = calculateQibla(lat, lon);
+
+      if (isFallback) {
+        this._showToast('GPS tidak tersedia. Gunakan lokasi default (Jakarta).');
+
+        // Only update status badge if not already set by the permission-denied handler
+        const gpsBadge = document.getElementById('gps-status');
+        if (gpsBadge && !gpsBadge.textContent.includes('Izin')) {
+          gpsBadge.textContent = '⚠ GPS tidak tersedia';
+          gpsBadge.className = 'status-badge status-warn';
+        }
+
+        const listEl = document.getElementById('mosque-list');
+        if (listEl) {
+          listEl.innerHTML =
+            '<div class="mosque-empty">GPS tidak terdeteksi. Aktifkan GPS dan muat ulang halaman.</div>';
+        }
       } else {
-        // Retry every second
-        setTimeout(check, 1000);
+        // Fetch mosques with real location
+        MosqueService.fetchMosques(lat, lon, MosqueService.radius);
       }
     };
 
-    const unsub = EventBus.on('location:update', (pos) => {
-      if (!AppState.userLocation) {
-        unsub();
-        MapMode.init(pos.latitude, pos.longitude);
-        AppState.userLocation = pos;
-        AppState.qiblaBearing = calculateQibla(pos.latitude, pos.longitude);
+    // Fallback timeout: if no GPS after 20 seconds, initialize with default location
+    locationTimeout = setTimeout(() => {
+      cleanup();
+      initMap(DEFAULT_LAT, DEFAULT_LON, true);
+    }, 20000);
 
-        // Fetch mosques
-        MosqueService.fetchMosques(pos.latitude, pos.longitude, MosqueService.radius);
+    // Listen for location updates
+    unsubscribe = EventBus.on('location:update', (pos) => {
+      if (!AppState.userLocation) {
+        cleanup();
+        initMap(pos.latitude, pos.longitude, false);
       }
     });
 
-    // Also try to get immediately
-    setTimeout(check, 500);
+    // Also listen for permission denied to short-circuit the timeout
+    errorUnsubscribe = EventBus.on('location:error', (error) => {
+      if (error.code === 1 && !AppState.userLocation) {
+        // Permission denied: fall back immediately
+        cleanup();
+        initMap(DEFAULT_LAT, DEFAULT_LON, true);
+      }
+    });
+
+    // Kick off a quick poll in case watchPosition already cached something
+    setTimeout(() => {
+      if (!AppState.userLocation) {
+        const pos = GeolocationService.getLastPosition();
+        if (pos) {
+          cleanup();
+          initMap(pos.latitude, pos.longitude, false);
+        }
+      }
+    }, 500);
   },
 
   /**
