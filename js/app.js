@@ -86,6 +86,7 @@ const App = {
     let locationTimeout = null;
     let unsubscribe = null;
     let errorUnsubscribe = null;
+    let resolved = false;
 
     const DEFAULT_LAT = -6.2088;
     const DEFAULT_LON = 106.8456;
@@ -97,7 +98,8 @@ const App = {
     };
 
     const initMap = (lat, lon, isFallback) => {
-      if (AppState.userLocation) return; // already initialized
+      if (resolved) return;
+      resolved = true;
 
       MapMode.init(lat, lon);
       AppState.userLocation = { latitude: lat, longitude: lon, accuracy: isFallback ? 99999 : null };
@@ -132,7 +134,7 @@ const App = {
 
     // Listen for location updates
     unsubscribe = EventBus.on('location:update', (pos) => {
-      if (!AppState.userLocation) {
+      if (!resolved) {
         cleanup();
         initMap(pos.latitude, pos.longitude, false);
       }
@@ -140,7 +142,7 @@ const App = {
 
     // Also listen for permission denied to short-circuit the timeout
     errorUnsubscribe = EventBus.on('location:error', (error) => {
-      if (error.code === 1 && !AppState.userLocation) {
+      if (error.code === 1 && !resolved) {
         // Permission denied: fall back immediately
         cleanup();
         initMap(DEFAULT_LAT, DEFAULT_LON, true);
@@ -149,7 +151,7 @@ const App = {
 
     // Kick off a quick poll in case watchPosition already cached something
     setTimeout(() => {
-      if (!AppState.userLocation) {
+      if (!resolved) {
         const pos = GeolocationService.getLastPosition();
         if (pos) {
           cleanup();
