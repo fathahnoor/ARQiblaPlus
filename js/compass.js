@@ -58,7 +58,7 @@ const CompassService = {
       // Fallback: use event.alpha from DeviceOrientationEvent
       // event.alpha is counter-clockwise from north in W3C spec,
       // so convert to clockwise: 360 - alpha
-      else if (event.alpha !== null) {
+      else if (event.alpha != null) {
         heading = normalizeAngle(360 - event.alpha);
       }
 

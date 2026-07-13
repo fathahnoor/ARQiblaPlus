@@ -15,6 +15,8 @@ const AppState = {
 };
 
 const App = {
+  _switching: false,
+
   /**
    * Initialize the application
    */
@@ -323,11 +325,14 @@ const App = {
    */
   async switchMode(targetMode) {
     if (targetMode === AppState.mode) return;
+    if (this._switching) return;
+    this._switching = true;
 
     if (targetMode === 'ar') {
       // Check camera permission
       if (!('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices)) {
         this._showToast('Browser Anda tidak mendukung kamera');
+        this._switching = false;
         return;
       }
 
@@ -341,7 +346,18 @@ const App = {
       MapMode.pause();
 
       // Init AR if not already ready
-      await ARMode.init();
+      const arReady = await ARMode.init();
+      if (!arReady) {
+        // AR failed: roll back UI state to map mode
+        document.getElementById('ar-container').classList.remove('active');
+        document.getElementById('map-container').classList.add('active');
+        document.getElementById('ar-toolbar').classList.remove('active');
+        document.getElementById('map-toolbar').classList.add('active');
+        document.getElementById('status-bar').classList.remove('ar-status');
+        MapMode.resume();
+        this._switching = false;
+        return;
+      }
 
       AppState.mode = 'ar';
       EventBus.emit('mode:change', 'ar');
@@ -359,6 +375,7 @@ const App = {
       AppState.mode = 'map';
       EventBus.emit('mode:change', 'map');
     }
+    this._switching = false;
   },
 
   /**

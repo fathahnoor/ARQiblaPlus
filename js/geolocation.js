@@ -32,6 +32,12 @@ const GeolocationService = {
       const { latitude, longitude, accuracy } = position.coords;
       this.lastPosition = { latitude, longitude, accuracy, timestamp: position.timestamp };
 
+      // Clear fallback interval once we have a real watchPosition success
+      if (this.fallbackInterval) {
+        clearInterval(this.fallbackInterval);
+        this.fallbackInterval = null;
+      }
+
       EventBus.emit('location:update', this.lastPosition);
 
       // Check if user moved far enough to re-query mosques

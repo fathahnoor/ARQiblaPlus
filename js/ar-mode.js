@@ -12,11 +12,15 @@ const ARMode = {
   sceneReady: false,
   needsUpdate: false,
 
-  QIBLA_DISTANCE: 200, // fixed visual distance for Qibla marker (meters)
+  QIBLA_DISTANCE: 1000, // fixed visual distance for Qibla marker (meters)
   MAX_MOSQUE_MARKERS: 30,
+  _gpsUpdateHandler: null,
+  _gpsUpdateTimer: null,
 
   /**
-   * Initialize AR scene
+   * Initialize AR scene.
+   * Returns a promise that resolves to true when the scene is ready,
+   * or false if initialization fails.
    */
   async init() {
     // Reset state for re-entry
@@ -24,12 +28,16 @@ const ARMode = {
       this.destroy();
     }
 
+    // Clear any pending debounced update from a previous session
+    clearTimeout(this._gpsUpdateTimer);
+    this._gpsUpdateTimer = null;
+
     const sceneEl = document.getElementById('ar-scene');
 
     if (!sceneEl) {
       console.error('AR scene element not found');
       EventBus.emit('ar:error', 'Elemen AR tidak ditemukan');
-      return;
+      return false;
     }
 
     // Check camera permission
@@ -42,7 +50,7 @@ const ARMode = {
     } catch (err) {
       console.warn('Camera permission denied:', err);
       EventBus.emit('ar:error', 'Izin kamera diperlukan untuk mode AR');
-      return;
+      return false;
     }
 
     // Show camera loading indicator
@@ -59,39 +67,47 @@ const ARMode = {
       cameraEl.setAttribute('gps-new-camera', 'gpsMinDistance: 2; gpsMinAccuracy: 50');
     }
 
-    // Handler for when scene is ready
-    const onSceneReady = () => {
-      this.sceneReady = true;
-      if (loadingEl) loadingEl.style.display = 'none';
-      EventBus.emit('ar:ready');
-      this._setupScene();
-    };
-
-    // A-Frame may have already loaded before we added the listener
-    if (sceneEl.hasLoaded) {
-      onSceneReady();
-    } else {
-      sceneEl.addEventListener('loaded', onSceneReady, { once: true });
-    }
-
-    // Timeout fallback
-    setTimeout(() => {
-      if (!this.sceneReady) {
-        if (loadingEl) loadingEl.style.display = 'none';
-        EventBus.emit('ar:error', 'Gagal memuat AR. Coba lagi.');
-      }
-    }, 10000);
-
     this.scene = sceneEl;
     this.scene.setAttribute('visible', 'true');
 
-    // Listen for GPS camera position updates
-    sceneEl.addEventListener('gps-camera-update-position', (e) => {
-      this._onGpsUpdate(e.detail);
-    });
-
-    // Register custom A-Frame components
+    // Register custom A-Frame components before creating entities
     this._registerComponents();
+
+    // Listen for GPS camera position updates
+    this._gpsUpdateHandler = (e) => {
+      this._onGpsUpdate(e.detail);
+    };
+    sceneEl.addEventListener('gps-camera-update-position', this._gpsUpdateHandler);
+
+    return new Promise((resolve) => {
+      let resolved = false;
+
+      const onSceneReady = () => {
+        if (resolved) return;
+        resolved = true;
+        this.sceneReady = true;
+        if (loadingEl) loadingEl.style.display = 'none';
+        EventBus.emit('ar:ready');
+        this._setupScene();
+        resolve(true);
+      };
+
+      if (sceneEl.hasLoaded) {
+        onSceneReady();
+      } else {
+        sceneEl.addEventListener('loaded', onSceneReady, { once: true });
+      }
+
+      // Timeout fallback
+      setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          if (loadingEl) loadingEl.style.display = 'none';
+          EventBus.emit('ar:error', 'Gagal memuat AR. Coba lagi.');
+          resolve(false);
+        }
+      }, 10000);
+    });
   },
 
   /**
@@ -175,7 +191,10 @@ const ARMode = {
       latitude: dummyPoint.latitude,
       longitude: dummyPoint.longitude,
     });
-    entity.setAttribute('fixed-scale', { scale: 15 });
+    // fixed-scale is added after gps-new-entity-place so its tick runs later
+    // and keeps the marker size constant regardless of distance.
+    entity.setAttribute('fixed-scale', { scale: 40 });
+    entity.setAttribute('look-at', '[gps-new-camera]');
 
     // Gold cylinder as Kaaba marker
     const cylinder = document.createElement('a-cylinder');
@@ -190,7 +209,6 @@ const ARMode = {
     label.setAttribute('value', 'Kiblat');
     label.setAttribute('align', 'center');
     label.setAttribute('position', '0 8 0');
-    label.setAttribute('look-at', '[gps-new-camera]');
     label.setAttribute('scale', '20 20 20');
     label.setAttribute('color', '#FFD700');
     entity.appendChild(label);
@@ -331,6 +349,20 @@ const ARMode = {
     const pos = GeolocationService.getLastPosition();
     if (!pos) return;
 
+    // Debounce updates to avoid jitter from rapid/noisy GPS events.
+    // The latest event in a 500ms window is applied.
+    clearTimeout(this._gpsUpdateTimer);
+    this._gpsUpdateTimer = setTimeout(() => {
+      this._applyGpsUpdate(pos);
+    }, 500);
+  },
+
+  /**
+   * Apply the actual GPS update (recalculate Qibla dummy point and refresh labels)
+   */
+  _applyGpsUpdate(pos) {
+    if (!this.qiblaMarker) return;
+
     AppState.qiblaBearing = calculateQibla(pos.latitude, pos.longitude);
     const dummyPoint = destinationPoint(
       pos.latitude,
@@ -340,11 +372,10 @@ const ARMode = {
     );
 
     // Update Qibla marker position
-    const gpsComp = this.qiblaMarker.components['gps-new-entity-place'];
-    if (gpsComp) {
-      gpsComp.setAttribute('latitude', dummyPoint.latitude);
-      gpsComp.setAttribute('longitude', dummyPoint.longitude);
-    }
+    this.qiblaMarker.setAttribute('gps-new-entity-place', {
+      latitude: dummyPoint.latitude,
+      longitude: dummyPoint.longitude,
+    });
 
     // Update mosque labels
     this.mosqueMarkers.forEach((entity) => {
@@ -398,6 +429,16 @@ const ARMode = {
     this._unsubMosques = null;
     this._unsubCompass = null;
     this._unsubSignificant = null;
+
+    // Remove GPS camera update listener
+    if (this.scene && this._gpsUpdateHandler) {
+      this.scene.removeEventListener('gps-camera-update-position', this._gpsUpdateHandler);
+      this._gpsUpdateHandler = null;
+    }
+
+    // Cancel pending debounced GPS update
+    clearTimeout(this._gpsUpdateTimer);
+    this._gpsUpdateTimer = null;
 
     // Clear markers
     this._clearMosqueMarkers();

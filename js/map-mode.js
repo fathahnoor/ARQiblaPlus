@@ -137,7 +137,7 @@ const MapMode = {
     // Position the Qibla marker on the dial at the qibla bearing angle
     if (qiblaMarker) {
       const angleRad = (AppState.qiblaBearing * Math.PI) / 180;
-      const radius = 30; // distance from center to marker (inside the 80px dial)
+      const radius = 26; // keep marker inside the 80px dial (radius 40 - marker half-size)
       const x = Math.sin(angleRad) * radius;
       const y = -Math.cos(angleRad) * radius;
       qiblaMarker.style.top = `${40 + y - 7}px`;
